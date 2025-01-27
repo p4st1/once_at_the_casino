@@ -5,8 +5,8 @@ from config import *
 from datetime import datetime
 import pygame.scrap as scrap
 from math import cos, sin, radians
-from optionBox import OptionBox
-from checkBox import Checkbox
+from optionbox import OptionBox
+from checkbox import Checkbox
 
 
 class Menu():
