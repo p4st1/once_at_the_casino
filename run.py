@@ -23,6 +23,7 @@ clock = pygame.time.Clock()
 start = time()
 cubes = [[0 for x in range(16)] for y in range(9)]
 Transition_scenes = Transition_cubes(screen)
+oldTimePackageSent = 0
 
 while running:
     events = pygame.event.get()
@@ -58,7 +59,11 @@ while running:
             game = None
         else:
             game.update(0) 
-            game.render()
+            game.render(clock.get_fps())
+            timePackageSent = time()
+            if timePackageSent - oldTimePackageSent > 0.05:
+                oldTimePackageSent = time()
+                game.send_packeges()
             screen.blit(game.win, (0, 0))
     clock.tick(60)
     pygame.display.flip()

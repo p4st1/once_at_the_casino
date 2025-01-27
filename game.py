@@ -108,6 +108,21 @@ class Game():
         
         self.minimap = Minimap()
         
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.connect((HOST, PORT))
+
+        self.isNetGraphShown = False
+        self.timePackcageSent = 0
+        self.oldTimePackageSent = 0
+        self.players = {}
+        self.pingTime = 0
+        self.chatSendMessage = ''
+        self.chatHistory = []
+        self.pingEnd, self.pingStart = time.time(), time.time()
+        self.packet = (self.players, self.chatHistory, self.pingTime)
+        self.packageToServer = (self.x, self.y, self.name, '')
+
+        
         
         
     def create_club_music(self):
@@ -154,6 +169,8 @@ class Game():
                     self.l = 1
                 if event.key == pygame.K_d:
                     self.r = 1
+                if event.key == pygame.K_F7:
+                    self.isNetGraphShown = not self.isNetGraphShown
                     
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_w:
@@ -283,8 +300,26 @@ class Game():
         self.x, self.y = self.player.rect.x, self.player.rect.y
         self.minimap.update([(self.x // 32, self.y // 32)])
         # print(self.x, self.y)
-    
-    def render(self):
+        
+        self.packageToServer = (self.x, self.y, self.name, self.chatSendMessage, self.vector, '')
+
+        try:    
+            self.client.sendall(pickle.dumps(self.packageToServer))
+        except Exception as e:
+            print(f'ERROR: {e}')
+
+        self.players = self.packet[0]
+        self.chatHistory = self.packet[1]
+        self.pingTime = self.packet[2]
+        print(self.players)
+
+    def print_text(self, message, x, y, font_color=(0, 0, 0), font_size=60, font_type=None, degree=0):
+        self.font_type = pygame.font.Font(font_type, font_size)
+        self.text = self.font_type.render(message, True, font_color)
+        self.text = pygame.transform.rotate(self.text, degree)
+        self.win.blit(self.text, (x, y))
+        
+    def render(self, fps=0):
         self.win.fill((0, 0, 0))
         self.bg_x, self.bg_y = -self.x * RATIO + (SIZE[0] // 2 - NPS_SIZE_X // 2), -self.y * RATIO + (SIZE[1] // 2 - NPS_SIZE_Y // 2)
         self.win.blit(self.bg, (self.bg_x, self.bg_y))
@@ -292,8 +327,41 @@ class Game():
         self.win.blit(self.hero, (SIZE[0] // 2 - NPS_SIZE_X // 2, SIZE[1] // 2 - NPS_SIZE_Y // 2))
         for texture in self.textures:
             self.win.blit(texture, (self.bg_x, self.bg_y))
+            if self.isNetGraphShown is True:
+                self.print_text(
+                    message=f'Ping: {self.pingTime}',
+                    x=0,
+                    y=(SIZE[1] - 20),
+                    font_color=(255, 255, 255),
+                    font_size=20,
+                    font_type=definedFonts[0]
+                )
+
+                self.print_text(
+                    message=f'FPS: {round(fps)}',
+                    x=0,
+                    y=(SIZE[1] - 40),
+                    font_color=(255, 255, 255),
+                    font_size=20,
+                    font_type=definedFonts[0]
+                )
+
         self.win.blit(self.minimap.minimap, (20, 20))
         # self.all_sprites.draw(self.win)
+
+    def send_packeges(self):
+        pingStart = time.time()
+        try:
+            serverRequests = pickle.loads(self.client.recv(1024))
+            chatHistory = serverRequests[1]
+            players = serverRequests[0]
+        except Exception as e:
+            print(f'Failed to get a package: {e}')
+            players, chatHistory = {}, []
+        pingEnd = time.time()
+        self.pingTime = (pingEnd - pingStart) * 1000
+        self.packet = (players, chatHistory, self.pingTime)
+
 
 
 
@@ -302,6 +370,7 @@ if __name__ == "__main__":
     game = Game("login")
     pygame.init()
     clock = pygame.time.Clock()
+    oldTimePackageSent = time.time()
     while game.running:
         events = pygame.event.get()
         if game.event(events):
