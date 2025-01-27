@@ -59,7 +59,7 @@ while running:
             menu.startGame = False
             game = None
         else:
-            game.update(0) 
+            game.update(transition) 
             game.render(clock.get_fps())
             timePackageSent = time()
             if timePackageSent - oldTimePackageSent > 0.05:

@@ -95,7 +95,6 @@ class Game():
         self.security_position = 0
         self.layers.append(self.security_colission)
         self.security_path = find_road((self.security_x // 32, self.security_y // 32), (111, 58))[1:-1]
-        print(self.security_path)
         self.security_picture = "NPC_images/security/down/0.png"
         self.security = pygame.transform.scale(pygame.image.load(self.security_picture), (NPS_SIZE_X * RATIO, NPS_SIZE_Y * RATIO))
         
@@ -128,7 +127,8 @@ class Game():
         self.other_players = []
         self.other_players_collisions = []
         self.other_players_vectors = []
-
+        
+        self.old_players = {}
         
     def update_other_players(self):
         players = list(self.players.keys())
@@ -350,8 +350,7 @@ class Game():
         self.chatHistory = self.packet[1]
         self.pingTime = self.packet[2]
         
-        # self.update_other_players()
-        print(self.players)
+        self.update_other_players()
     
             
 
@@ -399,13 +398,15 @@ class Game():
 
     def send_packeges(self):
         pingStart = time.time()
+        
         try:
-            serverRequests = pickle.loads(self.client.recv(1024))
+            serverRequests = pickle.loads(self.client.recv(4096))
             chatHistory = serverRequests[1]
             players = serverRequests[0]
         except Exception as e:
             print(f'Failed to get a package: {e}')
-            players, chatHistory = {}, []
+            players = {}
+            chatHistory = []
         pingEnd = time.time()
         self.pingTime = (pingEnd - pingStart) * 1000
         self.packet = (players, chatHistory, self.pingTime)
@@ -423,7 +424,6 @@ if __name__ == "__main__":
         events = pygame.event.get()
         if game.event(events):
             login = game.name
-            print(login)
         game.update(0)
         game.render()
         screen.blit(game.win, (0, 0))
