@@ -40,7 +40,7 @@ club_music = ['50 Cent - Just A Lil Bit.mp3',
 minimap_image = 'images/fullsize.png'
 RATIO = 2
 
+with open("lvl.txt", "r") as file:
+    level_hitboxes = [list(i.rstrip()) for i in file.readlines()]
 
 # club_music = ["Playboi Carti - New Tank.mp3"]
-
-

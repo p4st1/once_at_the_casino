@@ -5,6 +5,8 @@ import random
 import time
 
 from config import *
+from find_road import find_road
+
 from math import *
 from pprint import pprint
 
@@ -51,6 +53,16 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (NPS_SIZE_X // 2 + x, NPS_SIZE_Y // 2 + y)
         self.mask = pygame.mask.from_surface(self.image)
         
+        
+class NPS(pygame.sprite.Sprite):
+    def __init__(self, x, y, type):
+        super().__init__()
+        img_path = f"NPC_images/{type}/down/0.png"
+        self.image = pygame.transform.scale((pygame.image.load(img_path).convert_alpha()), (NPS_SIZE_X, NPS_SIZE_Y))
+        self.rect = self.image.get_rect()
+        self.rect.center = (NPS_SIZE_X // 2 + x, NPS_SIZE_Y // 2 + y)
+        self.mask = pygame.mask.from_surface(self.image)
+        
     
 
 
@@ -74,24 +86,18 @@ class Game():
         self.all_sprites.add(self.player)
         
         self.create_bg()
-        # self.map = [[0 for x in range(144)] for y in range(96)]
-        
-        
-        # for y in range(96):
-        #     for x in range(144):
-        #         self.test_object = Obstacle(x * 32, y * 32, 32, 32)
-        #         self.all_sprites.add(self.test_object)
-        #         for layer in self.layers:
-        #             if pygame.sprite.collide_mask(self.test_object, layer):
-        #                 self.map[y][x] = 1
-        #                 break
-        #         self.test_object.kill()
-        # with open("lvl.txt", "a") as file:
-        #     for i in self.map:
-        #         string = str("".join(list(map(str, i))))
-        #         file.write(string + '\n')
-                
         self.create_textures()
+        
+        self.security_x, self.security_y = 2024, 1824
+        self.security_colission = NPS(self.security_x, self.security_y, "security")
+        self.all_sprites.add(self.security_colission)
+        self.security_vector = "down"
+        self.security_position = 0
+        self.layers.append(self.security_colission)
+        self.security_path = find_road((self.security_x // 32, self.security_y // 32), (111, 58))[1:-1]
+        print(self.security_path)
+        self.security_picture = "NPC_images/security/down/0.png"
+        self.security = pygame.transform.scale(pygame.image.load(self.security_picture), (NPS_SIZE_X * RATIO, NPS_SIZE_Y * RATIO))
         
         self.dynamics_jazz = [(1671, 2136),  (701, 1251), (1571, 1056), (386, 611), (2526, 1596), (3166, 800)]
         pygame.mixer.music.load(jazz)
@@ -101,6 +107,7 @@ class Game():
         self.create_club_music()
         
         self.minimap = Minimap()
+        
         
         
     def create_club_music(self):
@@ -167,6 +174,29 @@ class Game():
             if pygame.sprite.collide_mask(self.player, layer):
                 return True
         return False
+    
+    def security_move(self):
+        if (self.security_x // 32, self.security_y // 32) != self.security_path[0][::-1]:
+            if self.security_x // 32 == self.security_path[0][1]:
+                if self.security_y // 32 < self.security_path[0][0]:
+                    self.security_colission.rect.y += SPEED // 2
+                    self.security_vector = "down"
+                else:
+                    self.security_colission.rect.y -= SPEED // 2
+                    self.security_vector = "up"
+            else:
+                if self.security_x // 32 < self.security_path[0][1]:
+                    self.security_colission.rect.x += SPEED // 2
+                    self.security_vector = "right"
+                else:
+                    self.security_colission.rect.x -= SPEED // 2
+                    self.security_vector = "left"
+        else:
+            self.security_path.pop(0)
+        self.security_x, self.security_y = self.security_colission.rect.x, self.security_colission.rect.y
+        
+        
+        
                 
     def update(self, transition):
         if not transition:
@@ -184,6 +214,15 @@ class Game():
             minus = round((club_distance / 1000), 2)
             volume = 1 - min(1, (minus if minus < 0.6 else minus ** 0.25))
             self.club_music.set_volume(volume)
+            
+        if self.security_path:
+            self.security_move()
+            self.security_position += 1
+        else:
+            self.security_position = 0
+            self.security_path = find_road((self.security_x // 32, self.security_y // 32), (random.randint(0, 144), random.randint(16, 85)))
+        self.security_picture = f"NPC_images/security/{self.security_vector}/{((self.security_position // 10) % 2 + 1) * int(bool(self.security_position))}.png"
+        self.security = pygame.transform.scale(pygame.image.load(self.security_picture), (NPS_SIZE_X * RATIO, NPS_SIZE_Y * RATIO))
                 
         self.all_sprites.update()
         if self.u or self.d or self.l or self.r:
@@ -249,6 +288,7 @@ class Game():
         self.win.fill((0, 0, 0))
         self.bg_x, self.bg_y = -self.x * RATIO + (SIZE[0] // 2 - NPS_SIZE_X // 2), -self.y * RATIO + (SIZE[1] // 2 - NPS_SIZE_Y // 2)
         self.win.blit(self.bg, (self.bg_x, self.bg_y))
+        self.win.blit(self.security, (self.bg_x + self.security_x * RATIO, self.bg_y + self.security_y * RATIO))
         self.win.blit(self.hero, (SIZE[0] // 2 - NPS_SIZE_X // 2, SIZE[1] // 2 - NPS_SIZE_Y // 2))
         for texture in self.textures:
             self.win.blit(texture, (self.bg_x, self.bg_y))
