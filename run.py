@@ -41,7 +41,7 @@ while running:
         if menu.events(events): #starting game
             scene = 1
             transition = 1
-            game = Game(menu.name)
+            game = Game("Пенис")
         else:
             menu.update()
             menu.render()
@@ -56,6 +56,7 @@ while running:
         if game.event(events): #end game
             scene = 0
             transition = 1
+            menu.startGame = False
             game = None
         else:
             game.update(0) 

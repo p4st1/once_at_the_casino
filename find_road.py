@@ -20,6 +20,8 @@ def is_valid_move(r, c, graph, visited):
             0 <= c < len(graph[0]) and 
             graph[r + 1][c] != '1' and 
             graph[r + 2][c] != "1" and
+            graph[r + 1][c + 1] != "1" and
+            graph[r + 2][c + 1] != "1" and
             (r, c) not in visited)
 
 def bfs(graph, start, end):

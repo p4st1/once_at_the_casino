@@ -111,7 +111,7 @@ class Game():
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect((HOST, PORT))
 
-        self.isNetGraphShown = False
+        self.isNetGraphShown = True
         self.timePackcageSent = 0
         self.oldTimePackageSent = 0
         self.players = {}
@@ -123,7 +123,45 @@ class Game():
         self.packageToServer = (self.x, self.y, self.name, '')
 
         
+        # (x, y, name, message, vector, state)
         
+        self.other_players = []
+        self.other_players_collisions = []
+        self.other_players_vectors = []
+
+        
+    def update_other_players(self):
+        players = list(self.players.keys())
+        all_players_data = list(self.players.values())
+        while 1:
+            for i in range(len(self.other_players)):
+                if self.other_players[i] not in players:
+                    self.other_players.pop(i)
+                    self.layers.remove(self.other_players_collisions[i])
+                    self.other_players_collisions[i].kill()
+                    self.other_players_collisions.pop(i)
+                    break
+            else:
+                break
+        for i in range(len(players)):
+            players_data = all_players_data[i]
+            if self.name != players_data[2]: #after change 
+                if players[i] not in self.other_players:
+                    self.other_players.append(players[i])
+                    new_player = Player(players_data[0], players_data[1], "NPC_images/player1/down/0.png")
+                    self.other_players_collisions.append(new_player)
+                    self.other_players_vectors.append(players_data[4])
+                    self.all_sprites.add(new_player)
+                    self.layers.append(new_player)
+                else:
+                    ind = self.other_players.index(players[i])
+                    self.other_players_collisions[ind].rect.x = players_data[0]
+                    self.other_players_collisions[ind].rect.y = players_data[1]
+                    self.other_players_vectors[ind] = players_data[4]
+        print(self.other_players)
+                    
+                
+                  
         
     def create_club_music(self):
         self.club_music = pygame.mixer.Sound("music/" + random.choice(club_music))
@@ -311,7 +349,11 @@ class Game():
         self.players = self.packet[0]
         self.chatHistory = self.packet[1]
         self.pingTime = self.packet[2]
+        
+        # self.update_other_players()
         print(self.players)
+    
+            
 
     def print_text(self, message, x, y, font_color=(0, 0, 0), font_size=60, font_type=None, degree=0):
         self.font_type = pygame.font.Font(font_type, font_size)
@@ -324,27 +366,33 @@ class Game():
         self.bg_x, self.bg_y = -self.x * RATIO + (SIZE[0] // 2 - NPS_SIZE_X // 2), -self.y * RATIO + (SIZE[1] // 2 - NPS_SIZE_Y // 2)
         self.win.blit(self.bg, (self.bg_x, self.bg_y))
         self.win.blit(self.security, (self.bg_x + self.security_x * RATIO, self.bg_y + self.security_y * RATIO))
+        for i in range(len(self.other_players)):
+            other_x, other_y = self.other_players_collisions[i].rect.x, self.other_players_collisions[i].rect.y
+            player_image = f"NPC_images/player1/{self.other_players_vectors[i]}/0.png"
+            other_player = pygame.transform.scale(pygame.image.load(player_image), (NPS_SIZE_X * RATIO, NPS_SIZE_Y * RATIO))
+            self.win.blit(other_player, (self.bg_x + other_x * RATIO, self.bg_y + other_y * RATIO))
+            
         self.win.blit(self.hero, (SIZE[0] // 2 - NPS_SIZE_X // 2, SIZE[1] // 2 - NPS_SIZE_Y // 2))
         for texture in self.textures:
             self.win.blit(texture, (self.bg_x, self.bg_y))
-            if self.isNetGraphShown is True:
-                self.print_text(
-                    message=f'Ping: {self.pingTime}',
-                    x=0,
-                    y=(SIZE[1] - 20),
-                    font_color=(255, 255, 255),
-                    font_size=20,
-                    font_type=definedFonts[0]
-                )
+        if self.isNetGraphShown is True:
+            self.print_text(
+                message=f'Ping: {self.pingTime}',
+                x=0,
+                y=(SIZE[1] - 20),
+                font_color=(255, 255, 255),
+                font_size=20,
+                font_type=definedFonts[0]
+            )
 
-                self.print_text(
-                    message=f'FPS: {round(fps)}',
-                    x=0,
-                    y=(SIZE[1] - 40),
-                    font_color=(255, 255, 255),
-                    font_size=20,
-                    font_type=definedFonts[0]
-                )
+            self.print_text(
+                message=f'FPS: {round(fps)}',
+                x=0,
+                y=(SIZE[1] - 40),
+                font_color=(255, 255, 255),
+                font_size=20,
+                font_type=definedFonts[0]
+            )
 
         self.win.blit(self.minimap.minimap, (20, 20))
         # self.all_sprites.draw(self.win)
