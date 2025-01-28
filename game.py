@@ -2,6 +2,7 @@ import pygame
 import socket
 import pickle
 import random
+import json
 import time
 
 from config import *
@@ -69,7 +70,11 @@ class NPS(pygame.sprite.Sprite):
 class Game():
     def __init__(self, name) -> None:
         pygame.init()
-        self.win = pygame.Surface(SIZE)
+        with open('data.json', 'r') as f:
+            config_file = json.load(f)
+
+        self.screenSize = config_file['Config']['resolution']
+        self.win = pygame.Surface(self.screenSize)
         self.running = True
         self.name = name
         self.all_sprites = pygame.sprite.Group()
@@ -107,8 +112,14 @@ class Game():
         
         self.minimap = Minimap()
         
+        
+
+        address = config_file['last_server'].split(':')
+        host = address[0]
+        port = int(address[1])
+
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.connect((HOST, PORT))
+        self.client.connect((host, port))
 
         self.isNetGraphShown = True
         self.timePackcageSent = 0
@@ -117,6 +128,14 @@ class Game():
         self.pingTime = 0
         self.chatSendMessage = ''
         self.chatHistory = []
+        self.chatActive = False
+        self.chatOpacity = 50
+        self.shownText = ''
+        self.chatSendMessage = ''
+        self.writing = False
+        self.color = (0,0,0)
+        
+        self.font = pygame.font.Font(definedFonts[1], 24)
         self.pingEnd, self.pingStart = time.time(), time.time()
         self.packet = (self.players, self.chatHistory, self.pingTime)
         self.packageToServer = (self.x, self.y, self.name, '')
@@ -157,11 +176,7 @@ class Game():
                     ind = self.other_players.index(players[i])
                     self.other_players_collisions[ind].rect.x = players_data[0]
                     self.other_players_collisions[ind].rect.y = players_data[1]
-                    self.other_players_vectors[ind] = players_data[4]
-        print(self.other_players)
-                    
-                
-                  
+                    self.other_players_vectors[ind] = players_data[4]                                  
         
     def create_club_music(self):
         self.club_music = pygame.mixer.Sound("music/" + random.choice(club_music))
@@ -199,17 +214,38 @@ class Game():
                 return True
                 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
-                    self.u = 1
-                if event.key == pygame.K_s:
-                    self.d = 1
-                if event.key == pygame.K_a:
-                    self.l = 1
-                if event.key == pygame.K_d:
-                    self.r = 1
-                if event.key == pygame.K_F7:
-                    self.isNetGraphShown = not self.isNetGraphShown
-                    
+                if not self.writing: 
+                    if event.key == pygame.K_w:
+                        self.u = 1
+                    if event.key == pygame.K_s:
+                        self.d = 1
+                    if event.key == pygame.K_a:
+                        self.l = 1
+                    if event.key == pygame.K_d:
+                        self.r = 1
+                    if event.key == pygame.K_F7:
+                        self.isNetGraphShown = not self.isNetGraphShown
+                    if event.key == pygame.K_t:
+                        self.chatActive = not self.chatActive
+                        self.writing = not self.writing
+                else:
+                    if event.key == pygame.K_BACKSPACE:
+                        self.chatSendMessage = self.chatSendMessage[:-1]
+                    elif event.key == pygame.K_ESCAPE:
+                        self.writing = False
+                        self.chatActive = False
+                        self.chatSendMessage = ''
+                    else:
+                        if event.key != pygame.K_RETURN:
+                            self.chatSendMessage += event.unicode
+                            
+                        else:
+                            self.writing = False
+                            self.chatActive = False
+                            print(self.chatSendMessage)
+                            self.chatSendMessage = ''
+                    self.shownText = self.chatSendMessage
+
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_w:
                     self.u = 0
@@ -349,6 +385,13 @@ class Game():
         self.players = self.packet[0]
         self.chatHistory = self.packet[1]
         self.pingTime = self.packet[2]
+
+        if self.chatActive is True:
+            self.color = (0, 0, 0)
+            self.chatOpacity = 50
+        else:
+            self.color = (0, 0, 0)
+            self.chatOpacity = 0
         
         self.update_other_players()
     
@@ -374,6 +417,7 @@ class Game():
         self.win.blit(self.hero, (SIZE[0] // 2 - NPS_SIZE_X // 2, SIZE[1] // 2 - NPS_SIZE_Y // 2))
         for texture in self.textures:
             self.win.blit(texture, (self.bg_x, self.bg_y))
+
         if self.isNetGraphShown is True:
             self.print_text(
                 message=f'Ping: {self.pingTime}',
@@ -392,6 +436,22 @@ class Game():
                 font_size=20,
                 font_type=definedFonts[0]
             )
+        
+        self.chatSurface = pygame.Surface((325,300))
+        self.chatSurface.fill((255, 255, 255))
+    
+        self.inputChatSurface = pygame.Surface((325,25))
+        self.inputChatSurface.fill((255, 255, 255))
+
+        txt_surface = self.font.render(self.shownText[-20:], True, self.color)
+
+        self.chatSurface.set_alpha(self.chatOpacity)
+        self.inputChatSurface.set_alpha(self.chatOpacity * 1.5)
+        self.win.blit(txt_surface, (self.screenSize[0] - 325, 300))
+        self.chatText_y, self.chatText_delta_y = 0, 25
+
+        self.win.blit(self.chatSurface, (self.screenSize[0] - 325, 0))
+        self.win.blit(self.inputChatSurface, (self.screenSize[0] - 325, 300))
 
         self.win.blit(self.minimap.minimap, (20, 20))
         # self.all_sprites.draw(self.win)

@@ -2,7 +2,7 @@ from os import walk
 SIZE = (1280, 720)
 FPS = 60
 
-HOST = '81.31.247.7'  # Адрес сервера
+# HOST = '81.31.247.7'  # Адрес сервера
 # HOST = '127.0.0.1'  # Локальный хост
 
 PORT = 5555
@@ -44,6 +44,13 @@ with open("lvl.txt", "r") as file:
     level_hitboxes = [list(i.rstrip()) for i in file.readlines()]
 
 definedFonts = [
-    'fonts/PixExtrusion.ttf'
+    'fonts/PixExtrusion.ttf',
+    'fonts/TeletactileRus.ttf'
+]
+
+mainMenuTheme = [
+    'audio/main_menu_2.mp3',
+    'audio/main_menu_1.mp3'
+
 ]
 # club_music = ["Playboi Carti - New Tank.mp3"]

@@ -20,7 +20,9 @@ class Menu():
         self.FPS = 60
         self.running = True
         self.screenSize = config_file['Config']['resolution']
-        if config_file['Config']['fullscreen'] == 'window':
+        self.window_type = config_file['Config']['fullscreen']
+        self.address = config_file['last_server']
+        if self.window_type == 'window':
             self.screen = pygame.Surface(self.screenSize)
         else:
             self.screen = pygame.Surface(self.screenSize, pygame.FULLSCREEN)
@@ -73,10 +75,6 @@ class Menu():
         self.screenChecked = 0
         self.screenCheckedOld = 0
         
-        pygame.mixer.music.load('audio/main_menu.mp3')
-        pygame.mixer.music.play()
-        pygame.mixer.music.set_volume(0.1)
-        
         self.moveselect = pygame.mixer.Sound(f'audio/moveselect.mp3')
         self.select = pygame.mixer.Sound(f'audio/select.mp3')
         
@@ -110,7 +108,16 @@ class Menu():
         self.volume = 0
         
         self.lkm = False
+
+        self.current_song = 0
+        self.play_main_menu_music()
+
+    def play_main_menu_music(self):
+        self.main_menu_music = pygame.mixer.Sound(mainMenuTheme[self.current_song])
+        self.main_menu_music.set_volume(0.1)
+        self.channel = self.main_menu_music.play()
         
+
     def main_menu_button_pressed(self):
         if self.current_scene_menu == 'main_menu':
             self.max_selected_buttons = 4
@@ -196,6 +203,9 @@ class Menu():
         elif self.current_scene_menu == 'lobby':
             self.max_selected_buttons = 2
             if self.selected_button == 0:
+                with open('data.json', 'r') as f:
+                    config_file = json.load(f)
+                self.address = config_file['last_server']
                 self.current_scene_menu = 'lobby/join'
                 self.select.play()
                 self.writing = True
@@ -226,6 +236,14 @@ class Menu():
                         self.logs(f'Unable to connect to server: {HOST}:{PORT}')
                         self.logs(f'Error: {e}')
                     else:
+                        with open("data.json", "w") as fh:
+                            json.dump({'Config' : {'resolution' : self.screenSize, 
+                                    'fullscreen': self.window_type,
+                                    }, 
+                                    'hot_keys' : {'keyboard' : self.binds}, 
+                                        'mouse': {},
+                                        'last_server' : f'{HOST}:{PORT}'}, fh)
+                        self.main_menu_music.stop()
                         self.logs(f'Connecting to server: {HOST}:{PORT}')
                         self.client.close()
                         self.startGame = True
@@ -235,7 +253,7 @@ class Menu():
                 
     def logs(self, log : str):
         with open('logs.txt', 'a') as logs:
-            logs.write(f'[{datetime.now().strftime('%d.%m.%y %H:%M:%S')}] {log}\n')
+            logs.write(f'[{datetime.now().strftime("%d.%m.%y %H:%M:%S")}] {log}\n')
         
     def events(self, events):
         mouse = pygame.mouse.get_pos()
@@ -273,13 +291,11 @@ class Menu():
             
             with open("data.json", "w") as fh:
                 json.dump({'Config' : {'resolution' : self.screenSize, 
-                           'fullscreen': 'window',
+                           'fullscreen': self.window_type,
                            }, 
-              'hot_keys' : {'keyboard' : {'move_forward' : '1',
-                                          'move_backward' : '3',
-                                          'move_left' : '4',
-                                          'move_right' : '3'}, 
-                            'mouse': {}}}, fh)
+              'hot_keys' : {'keyboard' : self.binds, 
+                            'mouse': {},
+                            'last_server' : ''}}, fh)
             
                 
         selected_option_2 = self.fullscreenBox.update(events)
@@ -517,6 +533,12 @@ class Menu():
         if not self.writing:
             if not self.name:
                 self.name = "login"
+
+        if not self.channel.get_busy():
+            self.current_song += 1
+            if self.current_song == len(mainMenuTheme):
+                self.current_song = 0
+            self.play_main_menu_music()
 
     def render(self):
         self.screen.fill(background_color)
