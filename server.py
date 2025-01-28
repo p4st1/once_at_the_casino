@@ -1,15 +1,19 @@
 import socket
 import threading
 import pickle
+import time
 from config import *
 
 
 # Игроки
 players = {}
+chatHistory = []
+chatTime = []
 
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
-    players[addr] = (50, 50, None)  # Начальные координаты игрока
+    players[addr] = (1400, 3800, None, '', '', '')  # Начальные координаты игрока
+    #(x, y, name, chatSendMessage, vector, state)
 
     while True:
         try:
@@ -17,7 +21,19 @@ def handle_client(conn, addr):
             if not data:
                 break
             players[addr] = pickle.loads(data)
-            broadcast(players, conn)
+            print(players)
+            for info in players.values():
+                if info[3] != '':
+                    message = (info[2], info[3])
+                    chatHistory.append(message)
+                    chatTime.append(time.time())
+                for timing in chatTime:
+                    if time.time() - timing > 5:
+                        ind = chatTime.index(timing)
+                        chatHistory.pop(ind)
+                        chatTime.pop(ind)
+
+            broadcast((players, chatHistory), conn)
 
         except Exception as e:
             print(f"[ERROR] {e}")
