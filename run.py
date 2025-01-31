@@ -41,7 +41,7 @@ while running:
         if menu.events(events): #starting game
             scene = 1
             transition = 1
-            game = Game("Пенис")
+            game = Game("hunbaoabo")
         else:
             menu.update()
             menu.render()

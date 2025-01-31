@@ -5,6 +5,8 @@ import random
 import json
 import time
 
+import pygame.locals
+
 from config import *
 from find_road import find_road
 
@@ -64,7 +66,128 @@ class NPS(pygame.sprite.Sprite):
         self.rect.center = (NPS_SIZE_X // 2 + x, NPS_SIZE_Y // 2 + y)
         self.mask = pygame.mask.from_surface(self.image)
         
-    
+        
+class SLOT_MACHINE():
+    def __init__(self, size, money):
+        self.size = size
+        self.money = money
+        self.screen = pygame.Surface((self.size))
+        self.current_background_color = 1
+        self.E_button_img = pygame.image.load(E_button_img).convert_alpha()
+        self.Q_button_img = pygame.image.load(Q_button_img).convert_alpha()
+        
+        self.seven = pygame.image.load(seven_img).convert_alpha()
+        self.cherry = pygame.image.load(cherry_img).convert_alpha()
+        self.bell = pygame.image.load(bell_img).convert_alpha()
+        self.bar = pygame.image.load(bar_img).convert_alpha()
+        
+        self.slots = pygame.image.load(slots_img).convert_alpha()
+        self.slot_machine = pygame.image.load(slot_machine_img).convert_alpha()
+        
+        self.armup = pygame.image.load(armup_img).convert_alpha()
+        self.armdown = pygame.image.load(armdown_img).convert_alpha()
+        
+        self.spining = 0
+        self.slot_items = [random.randint(0, 99) for i in range(3)]
+        self.distance = [0, 0, 0]
+        self.slots_spining = [0, 0, 0]
+        
+    def check_win(self):
+        slots_reslut = [slot_line[i] for i in self.slot_items]
+        max_item = max(slots_reslut, key=lambda x: slots_reslut.count(x))
+        k = slots_reslut.count(max_item)
+        if k > 1:
+            n = 3
+            binom = factorial(n) / (factorial(k) * factorial(n - k))
+            p = slot_generator[max_item] / 100
+            out = binom * (p ** k) * (1 - p) ** (n - k)
+            win = int((round(100 / (out * 100), 3)) * 1 / 12 * 100)
+            print(win)
+            self.money += win 
+            
+        
+        
+    def spin_slots(self):
+        if s := sum(self.distance):
+            for i in range(3):
+                if self.distance[i]:
+                    self.distance[i] -= 1
+                    s -= 1
+                    self.slot_items[i] = (self.slot_items[i] + 1) % 100
+            if s == 0:
+                self.spining = 0
+                self.check_win()
+                
+        else:
+            self.money -= 100
+            self.distance = [random.randint(30, 99) for i in range(3)]
+            self.start_time = time.time()
+
+        
+    def update(self, button_size):
+        self.button_size = button_size // 2
+        self.bg = pygame.image.load(f"images/background/frame_{self.current_background_color}.png")
+        self.bg = pygame.transform.scale(self.bg, self.size)
+        if self.spining:
+            self.spin_slots()
+        
+        
+        self.current_background_color += 1
+        self.current_background_color = 1 if self.current_background_color == 18 else self.current_background_color
+        
+        self.E_button = pygame.transform.scale(self.E_button_img, (32 * RATIO + self.button_size, 32 * RATIO + self.button_size))
+        self.Q_button = pygame.transform.scale(self.Q_button_img, (32 * RATIO + self.button_size, 32 * RATIO + self.button_size))
+        
+        self.render()
+        
+    def render(self):
+        self.screen.fill(background_color)
+        self.screen.blit(self.bg, (0, 0))
+        
+        slot_coords = ((self.size[0] - (816 * RATIO / 2)) / 2, (self.size[1] - 624 * RATIO / 2))
+        x, y = slot_coords
+        self.screen.blit(self.slots, slot_coords)
+        for item, i in zip(self.slot_items, range(3)):
+            eval(f"self.screen.blit(self.{slot_line[item]}, (x + 816 / 3.5 + 816 / 6.2 * i, y + 300))")
+        
+        self.screen.blit(self.slot_machine, slot_coords)
+        if self.spining:
+            self.screen.blit(self.armdown, slot_coords)
+        else:
+            self.screen.blit(self.armup, slot_coords)
+        
+        self.screen.blit(self.Q_button, (30 - self.button_size / 2, 30 - self.button_size / 2))
+        self.screen.blit(self.E_button, (250 - self.button_size / 2, 30 - self.button_size / 2))
+        self.print_text(
+                message=f'Exit',
+                x=100,
+                y=45,
+                font_color=(255, 255, 255),
+                font_size=40 + self.button_size // 2,
+                font_type=definedFonts[0]
+            )
+        self.print_text(
+                message=f'Spin',
+                x=320,
+                y=45,
+                font_color=(255, 255, 255),
+                font_size=40 + self.button_size // 2,
+                font_type=definedFonts[0]
+            )
+        self.print_text(
+                message=f'{self.money}$',
+                x=self.size[0] - len(str(self.money)) * 40 - 30,
+                y=45,
+                font_color=(255, 255, 255),
+                font_size=40 + self.button_size // 2,
+                font_type=definedFonts[0]
+            )
+
+    def print_text(self, message, x, y, font_color=(0, 0, 0), font_size=60, font_type=None, degree=0):
+        self.font_type = pygame.font.Font(font_type, font_size)
+        self.text = self.font_type.render(message, True, font_color)
+        self.text = pygame.transform.rotate(self.text, degree)
+        self.screen.blit(self.text, (x, y))
 
 
 class Game():
@@ -79,7 +202,9 @@ class Game():
         self.name = name
         self.all_sprites = pygame.sprite.Group()
         self.hitboxes = pygame.sprite.Group()
+        self.scene = 0
 
+        self.money = 3000
         self.x, self.y = 2771, 1856
         self.r, self.l, self.u, self.d = 0, 0, 0, 0
         self.vector = "down"
@@ -140,9 +265,16 @@ class Game():
         self.packet = (self.players, self.chatHistory, self.pingTime)
         self.packageToServer = (self.x, self.y, self.name, '')
 
+        self.games_pos_type = [[f"slot_machine{i}", (82 * 32, (41 - i * 4) * 32)] for i in range(4)] + \
+            [[f"slot_machine{i + 4}", (91 * 32, (41 - i * 4) * 32)] for i in range(4)]
+        self.E_button_img = pygame.image.load(E_button_img).convert_alpha()
+        self.E_button = pygame.transform.scale(self.E_button_img, (32 * RATIO, 32 * RATIO))
+        self.selected_game = None
+        
+        
+        
         
         # (x, y, name, message, vector, state)
-        
         self.other_players = []
         self.other_players_collisions = []
         self.other_players_vectors = []
@@ -228,6 +360,15 @@ class Game():
                     if event.key == pygame.K_t:
                         self.chatActive = not self.chatActive
                         self.writing = not self.writing
+                    if event.key == pygame.K_e:
+                        if self.selected_game:
+                            if self.scene == 1:
+                                self.slot_machine.spining = 1
+                            if self.selected_game[0].startswith("slot_machine") and self.scene != 1:
+                                self.scene = 1
+                                self.slot_machine = SLOT_MACHINE(self.screenSize, self.money)
+                    if event.key == pygame.K_q:
+                        self.scene = 0
                 else:
                     if event.key == pygame.K_BACKSPACE:
                         self.chatSendMessage = self.chatSendMessage[:-1]
@@ -270,17 +411,17 @@ class Game():
         if (self.security_x // 32, self.security_y // 32) != self.security_path[0][::-1]:
             if self.security_x // 32 == self.security_path[0][1]:
                 if self.security_y // 32 < self.security_path[0][0]:
-                    self.security_colission.rect.y += SPEED // 2
+                    self.security_colission.rect.y += SPEED // 4
                     self.security_vector = "down"
                 else:
-                    self.security_colission.rect.y -= SPEED // 2
+                    self.security_colission.rect.y -= SPEED // 4
                     self.security_vector = "up"
             else:
                 if self.security_x // 32 < self.security_path[0][1]:
-                    self.security_colission.rect.x += SPEED // 2
+                    self.security_colission.rect.x += SPEED // 4
                     self.security_vector = "right"
                 else:
-                    self.security_colission.rect.x -= SPEED // 2
+                    self.security_colission.rect.x -= SPEED // 4
                     self.security_vector = "left"
         else:
             self.security_path.pop(0)
@@ -290,6 +431,11 @@ class Game():
         
                 
     def update(self, transition):
+        button_size = round(time.time() * 20) % 20
+        self.button_size = (button_size if button_size <= 10 else 10 - button_size + 10)
+        if self.scene == 1:
+            self.slot_machine.update(self.button_size)
+            
         if not transition:
             if not self.channel.get_busy():
                 self.create_club_music()
@@ -305,6 +451,16 @@ class Game():
             minus = round((club_distance / 1000), 2)
             volume = 1 - min(1, (minus if minus < 0.6 else minus ** 0.25))
             self.club_music.set_volume(volume)
+        
+        min_distance_to_game = float("inf")
+        for game_type, (x, y) in self.games_pos_type:
+            distance = ((x - self.x) ** 2 + (y - self.y) ** 2) ** 0.5
+            if distance < min_distance_to_game and distance <= 250:
+                min_distance_to_game = distance
+                self.selected_game = [game_type, (x, y)]
+        if min_distance_to_game == float('inf'):
+            self.selected_game = None
+            
             
         if self.security_path:
             self.security_move()
@@ -312,7 +468,7 @@ class Game():
         else:
             self.security_position = 0
             self.security_path = find_road((self.security_x // 32, self.security_y // 32), (random.randint(0, 144), random.randint(16, 85)))
-        self.security_picture = f"NPC_images/security/{self.security_vector}/{((self.security_position // 10) % 2 + 1) * int(bool(self.security_position))}.png"
+        self.security_picture = f"NPC_images/security/{self.security_vector}/{((self.security_position // 20) % 2 + 1) * int(bool(self.security_position))}.png"
         self.security = pygame.transform.scale(pygame.image.load(self.security_picture), (NPS_SIZE_X * RATIO, NPS_SIZE_Y * RATIO))
                 
         self.all_sprites.update()
@@ -395,6 +551,7 @@ class Game():
         
         self.update_other_players()
     
+
             
 
     def print_text(self, message, x, y, font_color=(0, 0, 0), font_size=60, font_type=None, degree=0):
@@ -405,19 +562,31 @@ class Game():
         
     def render(self, fps=0):
         self.win.fill((0, 0, 0))
-        self.bg_x, self.bg_y = -self.x * RATIO + (SIZE[0] // 2 - NPS_SIZE_X // 2), -self.y * RATIO + (SIZE[1] // 2 - NPS_SIZE_Y // 2)
-        self.win.blit(self.bg, (self.bg_x, self.bg_y))
-        self.win.blit(self.security, (self.bg_x + self.security_x * RATIO, self.bg_y + self.security_y * RATIO))
-        for i in range(len(self.other_players)):
-            other_x, other_y = self.other_players_collisions[i].rect.x, self.other_players_collisions[i].rect.y
-            player_image = f"NPC_images/player1/{self.other_players_vectors[i]}/0.png"
-            other_player = pygame.transform.scale(pygame.image.load(player_image), (NPS_SIZE_X * RATIO, NPS_SIZE_Y * RATIO))
-            self.win.blit(other_player, (self.bg_x + other_x * RATIO, self.bg_y + other_y * RATIO))
-            
-        self.win.blit(self.hero, (SIZE[0] // 2 - NPS_SIZE_X // 2, SIZE[1] // 2 - NPS_SIZE_Y // 2))
-        for texture in self.textures:
-            self.win.blit(texture, (self.bg_x, self.bg_y))
+        if self.scene == 0:
+            self.bg_x, self.bg_y = -self.x * RATIO + (SIZE[0] // 2 - NPS_SIZE_X // 2), -self.y * RATIO + (SIZE[1] // 2 - NPS_SIZE_Y // 2)
+            self.win.blit(self.bg, (self.bg_x, self.bg_y))
+            self.win.blit(self.security, (self.bg_x + self.security_x * RATIO, self.bg_y + self.security_y * RATIO))
+            for i in range(len(self.other_players)):
+                other_x, other_y = self.other_players_collisions[i].rect.x, self.other_players_collisions[i].rect.y
+                player_image = f"NPC_images/player1/{self.other_players_vectors[i]}/0.png"
+                other_player = pygame.transform.scale(pygame.image.load(player_image), (NPS_SIZE_X * RATIO, NPS_SIZE_Y * RATIO))
+                self.win.blit(other_player, (self.bg_x + other_x * RATIO, self.bg_y + other_y * RATIO))
+                
+            self.win.blit(self.hero, (SIZE[0] // 2 - NPS_SIZE_X // 2, SIZE[1] // 2 - NPS_SIZE_Y // 2))
+            for texture in self.textures:
+                self.win.blit(texture, (self.bg_x, self.bg_y))
 
+
+            if self.selected_game:
+                
+                self.E_button = pygame.transform.scale(self.E_button_img, (32 * RATIO + self.button_size, 32 * RATIO + self.button_size))
+                x, y = self.selected_game[1]
+                self.win.blit(self.E_button, (self.bg_x + x * RATIO - self.button_size / 2, self.bg_y + y * RATIO - self.button_size / 2))
+            self.win.blit(self.minimap.minimap, (20, 20))
+        if self.scene == 1:
+            self.win.blit(self.slot_machine.screen, (0, 0))
+            
+            
         if self.isNetGraphShown is True:
             self.print_text(
                 message=f'Ping: {self.pingTime}',
@@ -449,11 +618,11 @@ class Game():
         self.inputChatSurface.set_alpha(self.chatOpacity * 1.5)
         self.win.blit(txt_surface, (self.screenSize[0] - 325, 300))
         self.chatText_y, self.chatText_delta_y = 0, 25
+        
 
         self.win.blit(self.chatSurface, (self.screenSize[0] - 325, 0))
         self.win.blit(self.inputChatSurface, (self.screenSize[0] - 325, 300))
 
-        self.win.blit(self.minimap.minimap, (20, 20))
         # self.all_sprites.draw(self.win)
 
     def send_packeges(self):
