@@ -98,6 +98,9 @@ class SLOT_MACHINE():
         self.win = pygame.mixer.Sound("audio/" + slot_win)
         self.big_win = pygame.mixer.Sound("audio/" + slot_big_win)
         
+        self.win_value = None
+        
+        
     def check_win(self):
         slots_reslut = [slot_line[i] for i in self.slot_items]
         max_item = max(slots_reslut, key=lambda x: slots_reslut.count(x))
@@ -115,6 +118,8 @@ class SLOT_MACHINE():
             out = binom * (p ** k) * (1 - p) ** (n - k)
             win = int((round(100 / (out * 100), 3)) * 1 / 10 * 100)
             self.money += win 
+            self.win_value = win
+            self.win_time = time.time()
             
         
         
@@ -146,6 +151,7 @@ class SLOT_MACHINE():
             self.money -= 100
             self.distance = [random.randint(30, 99) for i in range(3)]
             self.start_time = time.time()
+            
 
         
     def update(self, button_size):
@@ -155,6 +161,7 @@ class SLOT_MACHINE():
         if self.spining:
             self.spin_slots()
         
+            
         
         self.current_background_color += 1
         self.current_background_color = 1 if self.current_background_color == 18 else self.current_background_color
@@ -162,6 +169,8 @@ class SLOT_MACHINE():
         self.E_button = pygame.transform.scale(self.E_button_img, (32 * RATIO + self.button_size, 32 * RATIO + self.button_size))
         self.Q_button = pygame.transform.scale(self.Q_button_img, (32 * RATIO + self.button_size, 32 * RATIO + self.button_size))
         
+        if self.win_value: 
+            self.win_label_opacity = max(0, 255 - (time.time() - self.win_time) ** 5)
         self.render()
         
     def render(self):
@@ -206,10 +215,21 @@ class SLOT_MACHINE():
                 font_size=40 + self.button_size // 2,
                 font_type=definedFonts[0]
             )
+        if self.win_value:
+            self.print_text(
+                message=f'+{self.win_value}$',
+                x=self.size[0] - len(str(self.win_value) + "+") * 40 - 30,
+                y=90,
+                font_color=GREEN,
+                font_size=40 + self.button_size // 2,
+                font_type=definedFonts[0],
+                alpha=self.win_label_opacity
+            )
 
-    def print_text(self, message, x, y, font_color=(0, 0, 0), font_size=60, font_type=None, degree=0):
+    def print_text(self, message, x, y, font_color=(0, 0, 0), font_size=60, font_type=None, degree=0, alpha=255):
         self.font_type = pygame.font.Font(font_type, font_size)
         self.text = self.font_type.render(message, True, font_color)
+        self.text.set_alpha(alpha)
         self.text = pygame.transform.rotate(self.text, degree)
         self.screen.blit(self.text, (x, y))
 
@@ -393,6 +413,7 @@ class Game():
                                 self.slot_machine = SLOT_MACHINE(self.screenSize, self.money)
                     if event.key == pygame.K_q:
                         self.scene = 0
+                        self.money = self.slot_machine.money
                 else:
                     if event.key == pygame.K_BACKSPACE:
                         self.chatSendMessage = self.chatSendMessage[:-1]
@@ -609,6 +630,15 @@ class Game():
                 self.E_button = pygame.transform.scale(self.E_button_img, (32 * RATIO + self.button_size, 32 * RATIO + self.button_size))
                 x, y = self.selected_game[1]
                 self.win.blit(self.E_button, (self.bg_x + x * RATIO - self.button_size / 2, self.bg_y + y * RATIO - self.button_size / 2))
+            
+            self.print_text(
+                message=f'{self.money}$',
+                x=self.screenSize[0] - len(str(self.money)) * 40 - 30,
+                y=45,
+                font_color=(220, 220, 220),
+                font_size=40,
+                font_type=definedFonts[0]
+            )
             self.win.blit(self.minimap.minimap, (20, 20))
         if self.scene == 1:
             self.win.blit(self.slot_machine.screen, (0, 0))
