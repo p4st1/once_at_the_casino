@@ -92,17 +92,28 @@ class SLOT_MACHINE():
         self.distance = [0, 0, 0]
         self.slots_spining = [0, 0, 0]
         
+        self.wheeling = pygame.mixer.Sound("audio/" + slot_wheel)
+        self.click = pygame.mixer.Sound("audio/" + slot_arm_sound)
+        self.coins = pygame.mixer.Sound("audio/" + coins_sound)
+        self.win = pygame.mixer.Sound("audio/" + slot_win)
+        self.big_win = pygame.mixer.Sound("audio/" + slot_big_win)
+        
     def check_win(self):
         slots_reslut = [slot_line[i] for i in self.slot_items]
         max_item = max(slots_reslut, key=lambda x: slots_reslut.count(x))
         k = slots_reslut.count(max_item)
         if k > 1:
+            if k == 3:
+                self.big_win.stop()
+                self.big_win.play()
+            else:
+                self.win.stop()
+                self.win.play()
             n = 3
             binom = factorial(n) / (factorial(k) * factorial(n - k))
             p = slot_generator[max_item] / 100
             out = binom * (p ** k) * (1 - p) ** (n - k)
-            win = int((round(100 / (out * 100), 3)) * 1 / 12 * 100)
-            print(win)
+            win = int((round(100 / (out * 100), 3)) * 1 / 10 * 100)
             self.money += win 
             
         
@@ -114,11 +125,24 @@ class SLOT_MACHINE():
                     self.distance[i] -= 1
                     s -= 1
                     self.slot_items[i] = (self.slot_items[i] + 1) % 100
+                    
             if s == 0:
                 self.spining = 0
+                self.wheeling.stop()
+                self.click.stop()
+                self.click.play()
+                self.wheeling = pygame.mixer.Sound("audio/" + slot_wheel)
                 self.check_win()
                 
         else:
+            self.big_win.stop()
+            self.win.stop()
+            self.wheeling.stop()
+            self.wheeling.play()
+            self.click.stop()
+            self.click.play()
+            self.coins.stop()
+            self.coins.play()
             self.money -= 100
             self.distance = [random.randint(30, 99) for i in range(3)]
             self.start_time = time.time()
@@ -445,7 +469,10 @@ class Game():
                 distance = ((self.x - x) ** 2 + (self.y - y) ** 2) ** 0.5
                 if distance < min_distance:
                     min_distance = distance
-            pygame.mixer.music.set_volume(1 - min(1, round((min_distance / 1000), 2)))
+            if self.scene:
+                pygame.mixer.music.set_volume(0.2)
+            else:
+                pygame.mixer.music.set_volume(1 - min(1, round((min_distance / 1000), 2)))
         
             club_distance = ((self.x - 3466) ** 2 + (self.y - 2021) ** 2) ** 0.5
             minus = round((club_distance / 1000), 2)

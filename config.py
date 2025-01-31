@@ -64,6 +64,13 @@ bar_img = "SlotMachine/slot-symbol4.png"
 armup_img = 'SlotMachine/slot-machine2.png'
 armdown_img = 'SlotMachine/slot-machine3.png'
 
+slot_wheel = "mixkit-slot-machine-random-wheel-1930.wav"
+slot_arm_sound = 'click.wav'
+slot_win = "mixkit-magical-coin-win-1936.wav"
+slot_big_win = "mixkit-slot-machine-win-1928.wav"
+
+coins_sound = "mixkit-coins-handling-1939.wav"
+
 
 with open("lvl.txt", "r") as file:
     level_hitboxes = [list(i.rstrip()) for i in file.readlines()]
