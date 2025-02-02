@@ -10,6 +10,7 @@ import pygame.locals
 from config import *
 from find_road import find_road
 
+from blackjack import Blackjack
 from math import *
 from pprint import pprint
 
@@ -363,7 +364,7 @@ class Game():
         
         self.minimap = Minimap()
         
-        
+        self.pokerRoom = 'None'
 
         address = config_file['last_server'].split(':')
         host = address[0]
@@ -389,14 +390,29 @@ class Game():
         self.font = pygame.font.Font(definedFonts[1], 24)
         self.pingEnd, self.pingStart = time.time(), time.time()
         self.packet = (self.players, self.chatHistory, self.pingTime)
-        self.packageToServer = (self.x, self.y, self.name, '')
+        self.packageToServer = (self.x, self.y, self.name, self.chatSendMessage, self.vector, '', self.pokerRoom, [])
 
         self.games_pos_type = [[f"slot_machine{i}", (82 * 32, (41 - i * 4) * 32)] for i in range(4)] + \
             [[f"slot_machine{i + 4}", (91 * 32, (41 - i * 4) * 32)] for i in range(4)] + \
             [[f"roullete{i}", (16 * 32, (43 + 7 * i) * 32)] for i in range(4)] + \
             [[f"roullete{i + 4}", (23 * 32, (43 + 7 * i) * 32)] for i in range(4)] + \
             [[f"roullete{i + 8}", (30 * 32, (43 + 7 * i) * 32)] for i in range(4)] + \
-            [[f"roullete{i + 12}", (37 * 32, (49 + 7 * i) * 32)] for i in range(3)]
+            [[f"roullete{i + 12}", (37 * 32, (49 + 7 * i) * 32)] for i in range(3)] + \
+            [[f"blackjack{i}", (48.5 * 32, (41 + 6 * i) * 32)] for i in range(3)] + \
+            [[f"blackjack{i + 3}", (58.5 * 32, (41 + 6 * i) * 32)] for i in range(3)] + \
+            [[f"blackjack{i + 6}", (68.5 * 32, (41 + 6 * i) * 32)] for i in range(3)] + \
+            [[f"poker1", (43 * 32, 64 * 32)]] + \
+            [[f"poker2", (46 * 32, 64 * 32)]] + \
+            [[f"poker3", (52 * 32, 64 * 32)]] + \
+            [[f"poker4", (58 * 32, 64 * 32)]] + \
+            [[f"poker5", (52 * 32, 69 * 32)]] + \
+            [[f"poker6", (52 * 32, 72 * 32)]] + \
+            [[f"poker7", (58 * 32, 69 * 32)]] + \
+            [[f"poker8", (58 * 32, 72 * 32)]] + \
+            [[f"poker9", (43 * 32, 72 * 32)]] + \
+            [[f"poker10", (46 * 32, 72 * 32)]]
+
+            
             
         self.E_button_img = pygame.image.load(E_button_img).convert_alpha()
         self.E_button = pygame.transform.scale(self.E_button_img, (32 * RATIO, 32 * RATIO))
@@ -469,6 +485,7 @@ class Game():
         
         
     def event(self, events):
+        self.currentEvents = events
         for event in events:
             if event.type == pygame.QUIT:
                 self.running = False
@@ -504,11 +521,20 @@ class Game():
                             if self.selected_game[0].startswith("roullete") and self.scene == 0:
                                 self.scene = 2
                                 self.roullete = ROULLETE(self.screenSize, self.money)
+                            if self.selected_game[0].startswith('blackjack') and self.scene == 0:
+                                self.scene = 3
+                                self.blackjack = Blackjack(self.screenSize, self.money)
+                            if self.selected_game[0].startswith('poker') and self.scene == 0:
+                                self.scene = 4
+                                self.pokerRoom = self.selected_game[0]
+                                
                     if event.key == pygame.K_q:
                         if self.scene == 1:
                             self.money = self.slot_machine.money
                         if self.scene == 2:
                             self.money = self.roullete.money
+                        if self.scene == 3:
+                            self.money = self.blackjack.chipBalance
                         self.scene = 0
                 else:
                     if event.key == pygame.K_BACKSPACE:
@@ -576,6 +602,9 @@ class Game():
             self.slot_machine.update(self.button_size)
         if self.scene == 2:
             self.roullete.update(self.button_size, self.mouse_pos)
+        if self.scene == 3:
+            self.blackjack.events(self.currentEvents)
+            self.blackjack.update()
             
         if not transition:
             if not self.channel.get_busy():
@@ -675,7 +704,7 @@ class Game():
         self.minimap.update([(self.x // 32, self.y // 32)])
         # print(self.x, self.y)
         
-        self.packageToServer = (self.x, self.y, self.name, self.chatSendMessage, self.vector, '')
+        self.packageToServer = (self.x, self.y, self.name, self.chatSendMessage, self.vector, '', self.pokerRoom, [])
 
         try:    
             self.client.sendall(pickle.dumps(self.packageToServer))
@@ -685,7 +714,7 @@ class Game():
         self.players = self.packet[0]
         self.chatHistory = self.packet[1]
         self.pingTime = self.packet[2]
-
+        print(self.packet)
         if self.chatActive is True:
             self.color = (0, 0, 0)
             self.chatOpacity = 50
@@ -740,6 +769,8 @@ class Game():
             self.win.blit(self.slot_machine.screen, (0, 0))
         if self.scene == 2:
             self.win.blit(self.roullete.screen, (0, 0))
+        if self.scene == 3:
+            self.win.blit(self.blackjack.screen, (0,0))
             
             
         if self.isNetGraphShown is True:
@@ -787,13 +818,15 @@ class Game():
             serverRequests = pickle.loads(self.client.recv(4096))
             chatHistory = serverRequests[1]
             players = serverRequests[0]
+            gameState = serverRequests[2]
         except Exception as e:
             print(f'Failed to get a package: {e}')
             players = {}
             chatHistory = []
+            gameState = {}
         pingEnd = time.time()
         self.pingTime = (pingEnd - pingStart) * 1000
-        self.packet = (players, chatHistory, self.pingTime)
+        self.packet = (players, chatHistory, gameState, self.pingTime)
 
 
 if __name__ == "__main__":
