@@ -149,7 +149,7 @@ class SLOT_MACHINE():
             self.click.play()
             self.coins.stop()
             self.coins.play()
-            self.money -= 100
+            self.money -= 3000
             self.distance = [random.randint(30, 99) for i in range(3)]
             self.start_time = time.time()
             
@@ -417,7 +417,7 @@ class Game():
         self.E_button_img = pygame.image.load(E_button_img).convert_alpha()
         self.E_button = pygame.transform.scale(self.E_button_img, (32 * RATIO, 32 * RATIO))
         self.selected_game = None
-        
+        self.live = 1
         
         
         
@@ -499,13 +499,13 @@ class Game():
             if event.type == pygame.KEYDOWN:
                 if not self.writing: 
                     if event.key == pygame.K_w:
-                        self.u = 1
+                        self.u = self.live
                     if event.key == pygame.K_s:
-                        self.d = 1
+                        self.d = self.live
                     if event.key == pygame.K_a:
-                        self.l = 1
+                        self.l = self.live
                     if event.key == pygame.K_d:
-                        self.r = 1
+                        self.r = self.live
                     if event.key == pygame.K_F7:
                         self.isNetGraphShown = not self.isNetGraphShown
                     if event.key == pygame.K_t:
@@ -529,12 +529,6 @@ class Game():
                                 self.pokerRoom = self.selected_game[0]
                                 
                     if event.key == pygame.K_q:
-                        if self.scene == 1:
-                            self.money = self.slot_machine.money
-                        if self.scene == 2:
-                            self.money = self.roullete.money
-                        if self.scene == 3:
-                            self.money = self.blackjack.chipBalance
                         self.scene = 0
                 else:
                     if event.key == pygame.K_BACKSPACE:
@@ -550,7 +544,7 @@ class Game():
                         else:
                             self.writing = False
                             self.chatActive = False
-                            print(self.chatSendMessage)
+                            # print(self.chatSendMessage)
                             self.chatSendMessage = ''
                     self.shownText = self.chatSendMessage
 
@@ -576,17 +570,17 @@ class Game():
         if (self.security_x // 32, self.security_y // 32) != self.security_path[0][::-1]:
             if self.security_x // 32 == self.security_path[0][1]:
                 if self.security_y // 32 < self.security_path[0][0]:
-                    self.security_colission.rect.y += SPEED // 4
+                    self.security_colission.rect.y += SPEED // (4 if self.live else 1) 
                     self.security_vector = "down"
                 else:
-                    self.security_colission.rect.y -= SPEED // 4
+                    self.security_colission.rect.y -= SPEED // (4 if self.live else 1)
                     self.security_vector = "up"
             else:
                 if self.security_x // 32 < self.security_path[0][1]:
-                    self.security_colission.rect.x += SPEED // 4
+                    self.security_colission.rect.x += SPEED // (4 if self.live else 1)
                     self.security_vector = "right"
                 else:
-                    self.security_colission.rect.x -= SPEED // 4
+                    self.security_colission.rect.x -= SPEED // (4 if self.live else 1)
                     self.security_vector = "left"
         else:
             self.security_path.pop(0)
@@ -596,15 +590,28 @@ class Game():
         
                 
     def update(self, transition):
+        # print(self.security_x, self.security_y)
         button_size = round(time.time() * 20) % 20
         self.button_size = (button_size if button_size <= 10 else 10 - button_size + 10)
         if self.scene == 1:
             self.slot_machine.update(self.button_size)
+            self.money = self.slot_machine.money
         if self.scene == 2:
             self.roullete.update(self.button_size, self.mouse_pos)
+            self.money = self.roullete.money
         if self.scene == 3:
+            self.money = self.blackjack.chipBalance
             self.blackjack.events(self.currentEvents)
             self.blackjack.update()
+            
+        if self.money <= 0:
+            if self.live:
+                self.security_path = find_road((self.security_x // 32, self.security_y // 32), (random.randint(0, 143), random.randint(16, 84)))
+            self.live = 0
+            self.scene = 0
+            distance_to_security = ((self.security_colission.rect.x - self.x) ** 2 + (self.security_colission.rect.y - self.y) ** 2) ** 0.5
+            if distance_to_security <= 60:
+                return True
             
         if not transition:
             if not self.channel.get_busy():
@@ -714,7 +721,7 @@ class Game():
         self.players = self.packet[0]
         self.chatHistory = self.packet[1]
         self.pingTime = self.packet[2]
-        print(self.packet)
+        # print(self.packet)
         if self.chatActive is True:
             self.color = (0, 0, 0)
             self.chatOpacity = 50

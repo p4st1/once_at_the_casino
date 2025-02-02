@@ -59,7 +59,8 @@ while running:
             menu.startGame = False
             game = None
         else:
-            game.update(transition) 
+            if game.update(transition):
+                pass #здесь должен быть переход в конечную сцену, как и в остальных ситуациях 
             game.render(clock.get_fps())
             timePackageSent = time()
             if timePackageSent - oldTimePackageSent > 0.05:
