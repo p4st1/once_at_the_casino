@@ -160,7 +160,6 @@ class SLOT_MACHINE():
         self.bg = pygame.transform.scale(self.bg, self.size)
         if self.spining:
             self.spin_slots()
-        
             
         
         self.current_background_color += 1
@@ -232,7 +231,89 @@ class SLOT_MACHINE():
         self.text.set_alpha(alpha)
         self.text = pygame.transform.rotate(self.text, degree)
         self.screen.blit(self.text, (x, y))
-
+        
+        
+class BETMAP():
+    def __init__(self):
+        self.betmap = pygame.Surface((798, 450))
+        self.button_rects = [
+            pygame.Rect(0, 0, 57, 150), #0
+            pygame.Rect(0, 150, 57, 150), #00
+        ]
+        for x in range(1, 14):
+            for y in range(3):
+                rect = pygame.Rect(x * 57, y * 100, 57, 100)
+                self.button_rects.append(rect)
+        
+        
+    def update(self, mouse_pos, left_margin, up_margin):
+        self.betmap.fill((0, 89, 21))
+        mx, my = mouse_pos
+        mouse_rect = pygame.Rect(mx - 10 - left_margin, my - 10 - up_margin, 20, 20)
+        for rect in self.button_rects:
+            if mouse_rect.colliderect(rect):
+                pygame.draw.rect(self.betmap, (0, 120, 21), rect)
+            pygame.draw.rect(self.betmap, (255, 255, 255), rect, 2)
+        pygame.draw.rect(self.betmap, (255, 255, 255), (0, 0, 798, 450), 1)
+        pygame.draw.rect(self.betmap, (100, 0, 0), mouse_rect)
+        
+class ROULLETE():
+    def __init__(self, size, money):
+        self.size = size
+        self.money = money
+        self.screen = pygame.Surface((self.size))
+        
+        self.E_button_img = pygame.image.load(E_button_img).convert_alpha()
+        self.Q_button_img = pygame.image.load(Q_button_img).convert_alpha()
+        
+        self.create_bg()
+        self.betmap = BETMAP()
+        self.roullete = pygame.image.load(roullete_img).convert_alpha()
+        
+        
+    def create_bg(self):
+        self.bg = pygame.Surface(self.size)
+        for x in range(self.size[0]):
+            for y in range(self.size[1]):
+                pygame.draw.rect(self.bg, DARK_GREEN if y * x % 2 else (0, 0, 0), (x, y, 1, 1))
+    
+    def update(self, button_size, mouse_pos):
+        self.betmap.update(mouse_pos, 450, self.size[1] // 2 - 225)
+        
+        self.button_size = button_size // 2
+        self.Q_button = pygame.transform.scale(self.Q_button_img, (32 * RATIO + self.button_size, 32 * RATIO + self.button_size))
+        self.render()
+        
+    def render(self):
+        self.screen.fill(background_color)
+        self.screen.blit(self.bg, (0, 0))
+        self.screen.blit(self.Q_button, (30 - self.button_size / 2, 30 - self.button_size / 2))
+        self.screen.blit(self.roullete, (50, self.size[1] // 2 - 200))
+        self.screen.blit(self.betmap.betmap, (450, self.size[1] // 2 - 225))
+        self.print_text(
+                message=f'Exit',
+                x=100,
+                y=45,
+                font_color=(255, 255, 255),
+                font_size=40 + self.button_size // 2,
+                font_type=definedFonts[0]
+            )
+        
+        self.print_text(
+                message=f'{self.money}$',
+                x=self.size[0] - len(str(self.money)) * 40 - 30,
+                y=45,
+                font_color=(255, 255, 255),
+                font_size=40 + self.button_size // 2,
+                font_type=definedFonts[0]
+            )
+        
+    def print_text(self, message, x, y, font_color=(0, 0, 0), font_size=60, font_type=None, degree=0):
+        self.font_type = pygame.font.Font(font_type, font_size)
+        self.text = self.font_type.render(message, True, font_color)
+        self.text = pygame.transform.rotate(self.text, degree)
+        self.screen.blit(self.text, (x, y))
+        
 
 class Game():
     def __init__(self, name) -> None:
@@ -310,7 +391,12 @@ class Game():
         self.packageToServer = (self.x, self.y, self.name, '')
 
         self.games_pos_type = [[f"slot_machine{i}", (82 * 32, (41 - i * 4) * 32)] for i in range(4)] + \
-            [[f"slot_machine{i + 4}", (91 * 32, (41 - i * 4) * 32)] for i in range(4)]
+            [[f"slot_machine{i + 4}", (91 * 32, (41 - i * 4) * 32)] for i in range(4)] + \
+            [[f"roullete{i}", (16 * 32, (43 + 7 * i) * 32)] for i in range(4)] + \
+            [[f"roullete{i + 4}", (23 * 32, (43 + 7 * i) * 32)] for i in range(4)] + \
+            [[f"roullete{i + 8}", (30 * 32, (43 + 7 * i) * 32)] for i in range(4)] + \
+            [[f"roullete{i + 12}", (37 * 32, (49 + 7 * i) * 32)] for i in range(3)]
+            
         self.E_button_img = pygame.image.load(E_button_img).convert_alpha()
         self.E_button = pygame.transform.scale(self.E_button_img, (32 * RATIO, 32 * RATIO))
         self.selected_game = None
@@ -408,12 +494,18 @@ class Game():
                         if self.selected_game:
                             if self.scene == 1:
                                 self.slot_machine.spining = 1
-                            if self.selected_game[0].startswith("slot_machine") and self.scene != 1:
+                            if self.selected_game[0].startswith("slot_machine") and self.scene == 0:
                                 self.scene = 1
                                 self.slot_machine = SLOT_MACHINE(self.screenSize, self.money)
+                            if self.selected_game[0].startswith("roullete") and self.scene == 0:
+                                self.scene = 2
+                                self.roullete = ROULLETE(self.screenSize, self.money)
                     if event.key == pygame.K_q:
+                        if self.scene == 1:
+                            self.money = self.slot_machine.money
+                        if self.scene == 2:
+                            self.money = self.roullete.money
                         self.scene = 0
-                        self.money = self.slot_machine.money
                 else:
                     if event.key == pygame.K_BACKSPACE:
                         self.chatSendMessage = self.chatSendMessage[:-1]
@@ -442,9 +534,7 @@ class Game():
                 if event.key == pygame.K_d:
                     self.r = 0
                     
-            if event.type == pygame.USEREVENT:
-                print(10)
-                # self.create_club_music()
+
                     
     def check_move(self):
         for layer in self.layers:
@@ -480,6 +570,8 @@ class Game():
         self.button_size = (button_size if button_size <= 10 else 10 - button_size + 10)
         if self.scene == 1:
             self.slot_machine.update(self.button_size)
+        if self.scene == 2:
+            self.roullete.update(self.button_size)
             
         if not transition:
             if not self.channel.get_busy():
@@ -515,7 +607,7 @@ class Game():
             self.security_position += 1
         else:
             self.security_position = 0
-            self.security_path = find_road((self.security_x // 32, self.security_y // 32), (random.randint(0, 144), random.randint(16, 85)))
+            self.security_path = find_road((self.security_x // 32, self.security_y // 32), (random.randint(0, 143), random.randint(16, 84)))
         self.security_picture = f"NPC_images/security/{self.security_vector}/{((self.security_position // 20) % 2 + 1) * int(bool(self.security_position))}.png"
         self.security = pygame.transform.scale(pygame.image.load(self.security_picture), (NPS_SIZE_X * RATIO, NPS_SIZE_Y * RATIO))
                 
@@ -642,6 +734,8 @@ class Game():
             self.win.blit(self.minimap.minimap, (20, 20))
         if self.scene == 1:
             self.win.blit(self.slot_machine.screen, (0, 0))
+        if self.scene == 2:
+            self.win.blit(self.roullete.screen, (0, 0))
             
             
         if self.isNetGraphShown is True:
@@ -698,21 +792,25 @@ class Game():
         self.packet = (players, chatHistory, self.pingTime)
 
 
-
-
 if __name__ == "__main__":
-    screen = pygame.display.set_mode(SIZE)
-    game = Game("login")
     pygame.init()
+    screen = pygame.display.set_mode((1280, 720))
     clock = pygame.time.Clock()
-    oldTimePackageSent = time.time()
-    while game.running:
-        events = pygame.event.get()
-        if game.event(events):
-            login = game.name
-        game.update(0)
-        game.render()
-        screen.blit(game.win, (0, 0))
+    game = ROULLETE((1280, 720), 3000)
+    mouse_pos = (0, 0)
+    while 1:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    quit()
+            if event.type == pygame.MOUSEMOTION:
+                mouse_pos = event.pos
+        button_size = round(time.time() * 20) % 20
+        button_size = (button_size if button_size <= 10 else 10 - button_size + 10)
+        game.update(button_size, mouse_pos)
         clock.tick(60)
-        
+        screen.fill((0, 0, 0))
+        screen.blit(game.screen, (0, 0))
         pygame.display.flip()

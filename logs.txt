@@ -1,0 +1,174 @@
+[29.01.25 17:14:53] Connecting to server: 81.31.247.7:5555
+[29.01.25 17:16:15] Connecting to server: 81.31.247.7:5555
+[29.01.25 17:20:46] Connecting to server: 81.31.247.7:5555
+[29.01.25 17:24:30] Connecting to server: 81.31.247.7:5555
+[29.01.25 17:25:28] Connecting to server: 81.31.247.7:5555
+[29.01.25 17:27:22] Connecting to server: 81.31.247.7:5555
+[29.01.25 18:14:14] Connecting to server: 81.31.247.7:5555
+[29.01.25 18:17:44] Connecting to server: 81.31.247.7:5555
+[29.01.25 18:19:05] Connecting to server: 81.31.247.7:5555
+[29.01.25 18:29:02] Connecting to server: 81.31.247.7:5555
+[29.01.25 18:30:10] Connecting to server: 81.31.247.7:5555
+[29.01.25 18:30:49] Connecting to server: 81.31.247.7:5555
+[29.01.25 18:34:32] Connecting to server: 81.31.247.7:5555
+[29.01.25 19:47:44] Unable to connect to server: 81.31.247.7:5555
+[29.01.25 19:47:44] Error: [WinError 10065] A socket operation was attempted to an unreachable host
+[29.01.25 19:47:44] Unable to connect to server: 81.31.247.7:5555
+[29.01.25 19:47:44] Error: [WinError 10065] A socket operation was attempted to an unreachable host
+[29.01.25 19:47:44] Unable to connect to server: 81.31.247.7:5555
+[29.01.25 19:47:44] Error: [WinError 10065] A socket operation was attempted to an unreachable host
+[29.01.25 19:47:54] Connecting to server: 127.0.0.1:5555
+[29.01.25 19:48:24] Connecting to server: 127.0.0.1:5555
+[29.01.25 19:51:41] Connecting to server: 127.0.0.1:5555
+[29.01.25 19:54:08] Connecting to server: 127.0.0.1:5555
+[29.01.25 19:54:44] Connecting to server: 127.0.0.1:5555
+[29.01.25 19:55:35] Connecting to server: 127.0.0.1:5555
+[29.01.25 19:55:57] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:02:42] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:03:16] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:03:49] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:07:55] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:08:38] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:11:28] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:11:58] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:12:33] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:13:34] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:14:40] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:16:05] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:19:01] Connecting to server: 127.0.0.1:5555
+[29.01.25 20:19:33] Connecting to server: 127.0.0.1:5555
+[30.01.25 15:28:56] Connecting to server: 127.0.0.1:5555
+[30.01.25 15:29:50] Connecting to server: 127.0.0.1:5555
+[30.01.25 15:44:00] Connecting to server: 127.0.0.1:5555
+[30.01.25 15:45:45] Connecting to server: 127.0.0.1:5555
+[30.01.25 15:47:28] Connecting to server: 127.0.0.1:5555
+[30.01.25 15:48:36] Connecting to server: 127.0.0.1:5555
+[30.01.25 15:49:28] Connecting to server: 127.0.0.1:5555
+[30.01.25 15:50:50] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:05:57] Unable to connect to server: 127.0.0.1:5555
+[30.01.25 16:05:57] Error: [WinError 10061] No connection could be made because the target machine actively refused it
+[30.01.25 16:06:01] Unable to connect to server: 127.0.0.1:5555
+[30.01.25 16:06:01] Error: [WinError 10061] No connection could be made because the target machine actively refused it
+[30.01.25 16:06:35] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:07:11] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:10:01] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:11:26] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:14:50] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:15:26] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:16:15] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:17:59] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:19:05] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:19:34] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:22:44] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:23:23] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:26:02] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:26:41] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:34:03] Connecting to server: 127.0.0.1:5555
+[30.01.25 16:34:17] Connecting to server: 127.0.0.1:5555
+[30.01.25 17:59:33] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:00:21] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:01:24] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:07:42] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:08:15] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:09:44] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:10:09] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:14:18] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:14:54] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:15:23] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:16:56] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:18:28] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:19:01] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:20:57] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:21:49] Connecting to server: 127.0.0.1:5555
+[30.01.25 18:22:57] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:16:43] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:18:50] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:24:41] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:25:16] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:27:20] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:28:36] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:29:05] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:29:37] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:30:06] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:30:54] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:31:21] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:31:40] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:32:19] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:32:45] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:33:06] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:33:34] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:33:56] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:34:17] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:47:16] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:48:22] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:55:07] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:55:34] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:55:59] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:57:07] Connecting to server: 127.0.0.1:5555
+[31.01.25 16:58:09] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:14:33] Unable to connect to server: 127.0.0.1:5555
+[31.01.25 17:14:33] Error: [WinError 10061] No connection could be made because the target machine actively refused it
+[31.01.25 17:14:37] Unable to connect to server: 127.0.0.1:5555
+[31.01.25 17:14:37] Error: [WinError 10061] No connection could be made because the target machine actively refused it
+[31.01.25 17:14:58] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:17:42] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:18:16] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:18:53] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:21:00] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:22:15] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:24:10] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:24:56] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:25:30] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:26:08] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:27:38] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:28:16] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:29:22] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:30:25] Connecting to server: 127.0.0.1:5555
+[31.01.25 17:31:07] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:04:49] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:10:51] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:11:21] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:12:16] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:14:43] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:18:09] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:19:28] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:22:01] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:24:07] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:26:31] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:33:47] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:36:06] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:36:45] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:37:48] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:39:32] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:40:18] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:43:28] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:49:01] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:50:01] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:50:46] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:51:36] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:58:22] Connecting to server: 127.0.0.1:5555
+[31.01.25 18:59:49] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:00:57] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:01:28] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:02:42] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:03:15] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:03:37] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:04:17] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:05:16] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:07:40] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:08:16] Connecting to server: 127.0.0.1:5555
+[31.01.25 19:09:08] Connecting to server: 127.0.0.1:5555
+[31.01.25 22:07:55] Connecting to server: 127.0.0.1:5555
+[31.01.25 22:18:44] Connecting to server: 127.0.0.1:5555
+[31.01.25 22:21:16] Connecting to server: 127.0.0.1:5555
+[31.01.25 22:24:50] Connecting to server: 127.0.0.1:5555
+[31.01.25 22:25:15] Connecting to server: 127.0.0.1:5555
+[01.02.25 10:13:10] Connecting to server: 127.0.0.1:5555
+[01.02.25 10:13:52] Connecting to server: 127.0.0.1:5555
+[01.02.25 12:02:46] Unable to connect to server: 127.0.0.1:5555
+[01.02.25 12:02:46] Error: [WinError 10061] No connection could be made because the target machine actively refused it
+[01.02.25 12:02:56] Connecting to server: 127.0.0.1:5555
+[02.02.25 12:38:57] Connecting to server: 127.0.0.1:5555
+[02.02.25 12:42:07] Connecting to server: 127.0.0.1:5555
+[02.02.25 12:44:26] Connecting to server: 127.0.0.1:5555
+[02.02.25 12:45:30] Connecting to server: 127.0.0.1:5555

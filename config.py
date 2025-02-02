@@ -10,6 +10,7 @@ PORT = 5555
 
 i = 62
 GREEN = (2, 248, 170)
+DARK_GREEN = 19, 89, 0
 DARK_BLUE = (9, 124, 170)
 PURPLE = 179, 66, 245
 
@@ -42,8 +43,8 @@ club_music = ['50 Cent - Just A Lil Bit.mp3',
 minimap_image = 'images/fullsize.png'
 RATIO = 2
 
-E_button_img = 'images/E_button.png'
-Q_button_img = 'images/Q_button.png'
+E_button_img = 'images/hotkeys/E_button.png'
+Q_button_img = 'images/hotkeys/Q_button.png'
 
 slot_line = ['seven', 'bell', 'bell', 'cherry', 'cherry', 'bar', 'bell', 'cherry', 'bell', 'seven', 'bell', 'bell', 
              'seven', 'cherry', 'cherry', 'bell', 'bell', 'cherry', 'bar', 'seven', 'bar', 'bar', 'bell', 'bar', 
@@ -71,6 +72,7 @@ slot_big_win = "mixkit-slot-machine-win-1928.wav"
 
 coins_sound = "mixkit-coins-handling-1939.wav"
 
+roullete_img = 'images/roullete/roullete.png'
 
 with open("lvl.txt", "r") as file:
     level_hitboxes = [list(i.rstrip()) for i in file.readlines()]
