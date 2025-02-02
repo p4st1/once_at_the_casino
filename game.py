@@ -329,6 +329,7 @@ class Game():
         self.hitboxes = pygame.sprite.Group()
         self.scene = 0
 
+        self.mouse_pos = 0, 0
         self.money = 3000
         self.x, self.y = 2771, 1856
         self.r, self.l, self.u, self.d = 0, 0, 0, 0
@@ -474,6 +475,9 @@ class Game():
                 self.club_music.stop()
                 pygame.mixer.music.stop()
                 return True
+            
+            if event.type == pygame.MOUSEMOTION:
+                self.mouse_pos = event.pos
                 
             if event.type == pygame.KEYDOWN:
                 if not self.writing: 
@@ -571,7 +575,7 @@ class Game():
         if self.scene == 1:
             self.slot_machine.update(self.button_size)
         if self.scene == 2:
-            self.roullete.update(self.button_size)
+            self.roullete.update(self.button_size, self.mouse_pos)
             
         if not transition:
             if not self.channel.get_busy():
