@@ -6,6 +6,7 @@ from menu import Menu
 from game import Game
 from transition import Transition, Transition_cubes
 from time import time
+from endingScreen import EndingScreen
 
 pygame.init()
 screen = pygame.display.set_mode(SIZE)
@@ -60,12 +61,32 @@ while running:
             game = None
         else:
             if game.update(transition):
-                pass #здесь должен быть переход в конечную сцену, как и в остальных ситуациях 
-            game.render(clock.get_fps())
-            timePackageSent = time()
-            if timePackageSent - oldTimePackageSent > 0.05:
-                oldTimePackageSent = time()
-                game.send_packeges()
-            screen.blit(game.win, (0, 0))
+                scene = 3
+                transition = 1
+                game = None
+            else:
+                game.render(clock.get_fps())
+                timePackageSent = time()
+                if timePackageSent - oldTimePackageSent > 0.05:
+                    oldTimePackageSent = time()
+                    game.send_packeges()
+                screen.blit(game.win, (0, 0))
+    if scene == 3:
+        if transition:
+            EndingScreen = EndingScreen()
+            EndingScreen.update()
+            EndingScreen.render()
+            transition = 0
+            continue
+        if EndingScreen.events(events): #end game
+            scene = 0
+            transition = 1
+            menu.startGame = False
+            game = None
+        else:
+            EndingScreen.update()
+            EndingScreen.render()
+            screen.blit(EndingScreen.screen, (0, 0))
+            
     clock.tick(60)
     pygame.display.flip()
