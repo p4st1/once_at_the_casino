@@ -604,13 +604,18 @@ class Game():
             self.blackjack.events(self.currentEvents)
             self.blackjack.update()
             
+        
+        print(self.live, self.security_path)
         if self.money <= 0:
             if self.live:
-                self.security_path = find_road((self.security_x // 32, self.security_y // 32), (random.randint(0, 143), random.randint(16, 84)))
-            self.live = 0
-            self.scene = 0
+                self.security_path = find_road((self.security_x // 32, self.security_y // 32), (round(self.x / 32), round(self.y / 32)))
+                self.live = 0
+                self.scene = 0
             distance_to_security = ((self.security_colission.rect.x - self.x) ** 2 + (self.security_colission.rect.y - self.y) ** 2) ** 0.5
             if distance_to_security <= 60:
+                self.running = False
+                self.club_music.stop()
+                pygame.mixer.music.stop()
                 return True
             
         if not transition:
@@ -647,7 +652,8 @@ class Game():
             self.security_position += 1
         else:
             self.security_position = 0
-            self.security_path = find_road((self.security_x // 32, self.security_y // 32), (random.randint(0, 143), random.randint(16, 84)))
+            if self.live:
+                self.security_path = find_road((self.security_x // 32, self.security_y // 32), (random.randint(0, 143), random.randint(16, 84)))
         self.security_picture = f"NPC_images/security/{self.security_vector}/{((self.security_position // 20) % 2 + 1) * int(bool(self.security_position))}.png"
         self.security = pygame.transform.scale(pygame.image.load(self.security_picture), (NPS_SIZE_X * RATIO, NPS_SIZE_Y * RATIO))
                 
@@ -716,7 +722,8 @@ class Game():
         try:    
             self.client.sendall(pickle.dumps(self.packageToServer))
         except Exception as e:
-            print(f'ERROR: {e}')
+            # print(f'ERROR: {e}')
+            pass
 
         self.players = self.packet[0]
         self.chatHistory = self.packet[1]
@@ -827,7 +834,7 @@ class Game():
             players = serverRequests[0]
             gameState = serverRequests[2]
         except Exception as e:
-            print(f'Failed to get a package: {e}')
+            # print(f'Failed to get a package: {e}')
             players = {}
             chatHistory = []
             gameState = {}

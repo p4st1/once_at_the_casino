@@ -81,6 +81,7 @@ while running:
         if EndingScreen.events(events): #end game
             scene = 0
             transition = 1
+            EndingScreen.main_menu_music.stop()
             menu.startGame = False
             game = None
         else:
